@@ -1,0 +1,17 @@
+<!DOCTYPE html> <title>Clipper</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link
+	rel="stylesheet"
+	href="{{ url_for('static', filename='css/style.css') }}"
+/>
+<body>
+	<h1>Vase Clipper</h1>
+	<input type="text" id="streamurl" />
+	<button type="button" id="startrecbtn">Start Recording</button>
+	<p id="streamstate"></p>
+	<div id="waveform"></div>
+</body>
+<script
+	src="{{ url_for('static', filename='scripts/clipper.js') }}"
+	type="module"
+></script>
