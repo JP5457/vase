@@ -12,7 +12,7 @@ class RecordingProcess(multiprocessing.Process):
         self.queue = queue
         self.id = id
         self.folder = folder
-        self.file = self.folder + '/stream' + str(id) + '.mp3'
+        self.file = self.folder + 'stream' + str(id) + '.mp3'
         self.exit = multiprocessing.Event()
         
 

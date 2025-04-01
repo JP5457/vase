@@ -3,6 +3,10 @@ import multiprocessing
 import random
 import time
 import sys
+import os
+from pydub import AudioSegment
+from datetime import datetime
+
 
 class RecordingManager:
     def __init__(self, folder):
@@ -20,7 +24,7 @@ class RecordingManager:
         while id in self.threads:
             id = random.randint(1,65536)
         newprocess = RecordingProcess(url, self.queue, id, self.folder)
-        self.threads[id] = {"process": newprocess, "url": url}
+        self.threads[id] = {"process": newprocess, "url": url, "lastread": (datetime.now() - datetime(1970, 1, 1)).total_seconds()}
         process = self.threads[id]["process"]
         process.start()
         return id
@@ -28,6 +32,7 @@ class RecordingManager:
     def GetState(self, id):
         try:
             if id in self.threads:
+                self.threads[id]["lastread"] = (datetime.now() - datetime(1970, 1, 1)).total_seconds()
                 return self.states[id]
             else:
                 return "closed"
@@ -46,22 +51,26 @@ class RecordingManager:
             self.threads[id]["process"].Shutdown()
             self.threads[id]["process"].join()
             del self.threads[id]
+            time.sleep(1)
+            os.remove(self.folder + 'stream' + str(id) + '.mp3')
             return "shutdown"
         except:
             return "error"
+
+    def CleanStreams(self):
+        currenttime = (datetime.now() - datetime(1970, 1, 1)).total_seconds()
+        for i in self.threads:
+            if (currenttime - self.threads[i]["lastread"]) > 900:
+                self.StopRecording(i)
         
 if __name__ == "__main__":
     manager = RecordingManager('/home/bigjimmy/Desktop/vase')
-    id1 = manager.StartRecording('http://audio.ury.org.uk/OB-Line')
     id2 = manager.StartRecording('http://audio.ury.org.uk/jukebox')
-    for i in range(0, 90):
+    for i in range(1, 20):
         manager.UpdateStates()
-        print(manager.GetState(id1) + " " + str(id1))
         print(manager.GetState(id2) + " " + str(id2))
-        if i > 80:
-            print(manager.StopRecording(id1))
-        if i > 85:
-            print(manager.StopRecording(id2))           
+        if i > 18:
+            print(manager.StopRecording(id2))      
         time.sleep(1)
     print("finished")
 

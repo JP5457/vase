@@ -47,16 +47,25 @@ print("Starting at " + str(unix_timestamp) , file=sys.stderr)
 app = Flask(__name__)
 app.secret_key = secrets.token_urlsafe(16) 
 
-folder = "/streams"
-recordingmanager = RecordingManager(folder)
+streamfolder = "/streams/"
+recordingmanager = RecordingManager(streamfolder)
+
+tempclipfolder = "/clipstore/"
 
 @scheduler.task('interval', id='do_job_1', minutes=2, misfire_grace_time=900)
 def job1():
     print("cleaning stream " + str(unix_timestamp) , file=sys.stderr)
+    recordingmanager.CleanStreams()
 
 @scheduler.task('interval', id='do_job_2', seconds=1, misfire_grace_time=900)
 def job2():
     recordingmanager.UpdateStates()
+
+import random, string
+
+def randomword(length):
+   letters = string.ascii_lowercase
+   return ''.join(random.choice(letters) for i in range(length))
 
 def verifyKey(key):
     pattern = re.compile('^[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789]+$')
@@ -91,26 +100,68 @@ def startrec():
 
 @app.route("/clipper/getstate/<uid>")
 def getstate(uid):
+    if not verifyKey(uid):
+        return "error"
     return {'state' : recordingmanager.GetState(int(uid))}
 
 @app.route("/clipper/stoprecording/<uid>")
 def stoprec(uid):
+    if not verifyKey(uid):
+        return "error"
     return {'info' : recordingmanager.StopRecording(int(uid))}
 
+@app.route('/clipper/makeaudio/<uid>/<size>')
+def makeaudio(uid, size):
+    if not verifyKey(uid):
+        return "error"
+    times = {
+        '1': 60,
+        '2': 120,
+        '3': 180,
+        '4': 240,
+        '5': 300,
+        '30': 30
+    }
+    cliplen = 1000* times.get(size, 120)
+    clipid = randomword(32)
+    clip = AudioSegment.from_mp3(streamfolder + 'stream' + str(uid) + '.mp3')
+    if len(clip) > cliplen:
+        clip = clip[(-1*cliplen):]
+    clip.export(tempclipfolder+clipid+".mp3", format="mp3")
+    return {'uid': clipid}
+
 @app.route('/clipper/getaudio/<uid>')
+def getaudio(uid):
+    if not verifyKey(uid):
+        return "keyerror"
+    try:
+        return send_file(tempclipfolder+uid+".mp3")
+    except:
+        return "error"
+
+@app.route('/clipper/getclip/<uid>')
 def getclip(uid):
-    clip = AudioSegment.from_mp3(folder + '/stream' + str(uid) + '.mp3')
-    #clip = clip[(-1000*120):]
-    clip.export("clip.mp3", format="mp3")
-    return send_file('clip.mp3')
+    if not verifyKey(uid):
+        return "keyerror"
+    try:
+        return send_file(tempclipfolder+uid+"_clip.mp3")
+    except:
+        return "error"
 
 @app.route('/clipper/makeclip/<uid>/<start>/<end>')
 def makeclip(uid,start,end):
-    if verifyKey(key) and verifySession(session):
-        clip = AudioSegment.from_mp3(clips_location+str(key)+"cl.mp3")
-        #clip = clip[(int(start)*1000):(int(end)*1000)]
-        clip.export(clips_location+str(key)+"clip.mp3", format="mp3")
-        return {"status": "complete"}
+    if not verifyKey(uid):
+        return "error"
+    clip = AudioSegment.from_mp3(tempclipfolder+uid+".mp3")
+    clipstart = (int(start)*1000)
+    clipend = (int(end)*1000)
+    if clipstart < 0 or clipstart > len(clip):
+        clipstart = 0
+    if clipend < 0 or clipend > len(clip):
+        clipend = len(clip)-2
+    clip = clip[clipstart:clipend]
+    clip.export(tempclipfolder+uid+"_clip.mp3", format="mp3")
+    return {"status": "complete"}
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5040))

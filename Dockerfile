@@ -6,6 +6,7 @@ COPY ./requirements.txt /app/requirements.txt
 
 #create a directory for the streams
 RUN mkdir -p /streams
+RUN mkdir -p /clipstore
 
 # switch working directory
 WORKDIR /app

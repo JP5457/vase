@@ -9,7 +9,27 @@
 	<input type="text" id="streamurl" />
 	<button type="button" id="startrecbtn">Start Recording</button>
 	<p id="streamstate"></p>
-	<div id="waveform"></div>
+	<button type="button" id="clip1">clip 1 min</button>
+	<div id="clipper" style="display: none">
+		<div id="waveform"></div>
+		<input type="time" id="startClip" required />
+		<button id="setStart">Set Start</button>
+		<input type="time" id="endClip" required />
+		<button id="setEnd">Set End</button>
+		<button id="clip">Clip!</button>
+	</div>
+	<div id="exporter" style="display: none">
+		<div id="clipWaveform"></div>
+		<a href="" id="download" download="clip.mp3">
+			<button>Download</button>
+		</a>
+	</div>
+	<div id="loading" style="display: none">
+		<h2>LOADING...</h2>
+	</div>
+	<div id="error" style="display: none">
+		<h2>ERROR</h2>
+	</div>
 </body>
 <script
 	src="{{ url_for('static', filename='scripts/clipper.js') }}"
