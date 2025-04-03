@@ -64,12 +64,12 @@ class RecordingManager:
                 self.StopRecording(i)
         
 if __name__ == "__main__":
-    manager = RecordingManager('/home/bigjimmy/Desktop/vase')
+    manager = RecordingManager('/home/bigjimmy/Desktop/vase/')
     id2 = manager.StartRecording('http://audio.ury.org.uk/jukebox')
-    for i in range(1, 20):
+    for i in range(1, 70):
         manager.UpdateStates()
         print(manager.GetState(id2) + " " + str(id2))
-        if i > 18:
+        if i > 68:
             print(manager.StopRecording(id2))      
         time.sleep(1)
     print("finished")

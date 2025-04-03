@@ -18,6 +18,11 @@ function stringToTime(time) {
 }
 
 function StartRec() {
+	document.getElementById("clipper").style.display = "none";
+	document.getElementById("loading").style.display = "none";
+	document.getElementById("exporter").style.display = "none";
+	document.getElementById("error").style.display = "none";
+	document.getElementById("exported").style.display = "none";
 	let streamurl = document.getElementById("streamurl").value;
 	console.log(streamurl);
 	const api_url = "/clipper/startrecording";
@@ -64,6 +69,7 @@ function makeaudio(time) {
 		document.getElementById("exporter").style.display = "none";
 		document.getElementById("loading").style.display = "block";
 		document.getElementById("error").style.display = "none";
+		document.getElementById("exported").style.display = "none";
 		const api_url = "/clipper/makeaudio/" + streamid + "/" + time;
 		fetch(api_url)
 			.then((response) => {
@@ -77,13 +83,25 @@ function makeaudio(time) {
 				document.getElementById("exporter").style.display = "none";
 				document.getElementById("loading").style.display = "none";
 				document.getElementById("error").style.display = "none";
+				document.getElementById("exported").style.display = "none";
 			})
 			.catch((error) => {
-				console.error("Fetch error:", error);
+				document.getElementById("clipper").style.display = "none";
+				document.getElementById("exporter").style.display = "none";
+				document.getElementById("loading").style.display = "none";
+				document.getElementById("error").style.display = "block";
+				document.getElementById("errormsg").textContent =
+					"Error creating clip audio";
+				document.getElementById("exported").style.display = "none";
 			});
 	} else {
-		console.log("something");
-		//TODO add error showing
+		document.getElementById("clipper").style.display = "none";
+		document.getElementById("exporter").style.display = "none";
+		document.getElementById("loading").style.display = "none";
+		document.getElementById("error").style.display = "block";
+		document.getElementById("errormsg").textContent =
+			"No stream has been defined";
+		document.getElementById("exported").style.display = "none";
 	}
 }
 
@@ -91,9 +109,6 @@ function makeclip(start, end) {
 	let apiUrl = "/clipper/makeclip/" + audioid + "/" + start + "/" + end;
 	fetch(apiUrl)
 		.then((response) => {
-			if (!response.ok) {
-				throw new Error("Network response was not ok");
-			}
 			return response.json();
 		})
 		.then((data) => {
@@ -103,13 +118,63 @@ function makeclip(start, end) {
 				"/clipper/getclip/" + audioid;
 			document.getElementById("exporter").style.display = "block";
 			document.getElementById("loading").style.display = "none";
+			document.getElementById("exported").style.display = "none";
 		})
 		.catch((error) => {
 			document.getElementById("clipper").style.display = "none";
 			document.getElementById("loading").style.display = "none";
-			document.getElementById("exporter").style.display = "none";
 			document.getElementById("error").style.display = "block";
+			document.getElementById("errormsg").textContent =
+				"Error trying to make clip";
+			document.getElementById("exported").style.display = "none";
 		});
+}
+
+function StoreClip() {
+	document.getElementById("loading").style.display = "block";
+	let streamname = document.getElementById("streamname").value;
+	let clipname = document.getElementById("clipname").value;
+	if (streamname != "" && clipname != "") {
+		const regex = /^[a-z\d\s]+$/i;
+		if (regex.test(streamname) && regex.test(clipname)) {
+			streamname = streamname.replace(" ", "-");
+			clipname = clipname.replace(" ", "-");
+			let apiUrl =
+				"/clipper/saveclip/" +
+				audioid +
+				"/" +
+				clipname +
+				"/" +
+				streamname;
+			fetch(apiUrl)
+				.then((response) => {
+					if (!response.ok) {
+						throw new Error("Network response was not ok");
+					}
+					return response.json();
+				})
+				.then((data) => {
+					document.getElementById("cliplink").href =
+						"/clips/" + data["uid"];
+					document.getElementById("loading").style.display = "none";
+					document.getElementById("exported").style.display = "block";
+				})
+				.catch((error) => {
+					document.getElementById("loading").style.display = "none";
+					document.getElementById("error").style.display = "block";
+					document.getElementById("errormsg").textContent =
+						"Server error when attempting to save clip";
+				});
+		} else {
+			document.getElementById("error").style.display = "block";
+			document.getElementById("errormsg").textContent =
+				"Stream name and clip name must be alphanumeric without special characters";
+		}
+	} else {
+		document.getElementById("error").style.display = "block";
+		document.getElementById("errormsg").textContent =
+			"Stream name and clip name not provided";
+	}
 }
 
 let wavesurfer = WaveSurfer.create({
@@ -127,10 +192,19 @@ let clipsurfer = WaveSurfer.create({
 });
 
 document.getElementById("startrecbtn").addEventListener("click", StartRec);
+document.getElementById("storeclip").addEventListener("click", StoreClip);
+
 document.getElementById("clip1").addEventListener(
 	"click",
 	function () {
 		makeaudio("1");
+	},
+	false
+);
+document.getElementById("clip5").addEventListener(
+	"click",
+	function () {
+		makeaudio("5");
 	},
 	false
 );
@@ -151,12 +225,17 @@ document.getElementById("clip").addEventListener("click", async () => {
 	document.getElementById("error").style.display = "none";
 	document.getElementById("loading").style.display = "block";
 	document.getElementById("exporter").style.display = "none";
+	document.getElementById("exported").style.display = "none";
+
 	let start = stringToTime(document.getElementById("startClip").value);
 	let end = stringToTime(document.getElementById("endClip").value);
 	if (start > end) {
 		document.getElementById("loading").style.display = "none";
 		document.getElementById("exporter").style.display = "none";
 		document.getElementById("error").style.display = "block";
+		document.getElementById("errormsg").textContent =
+			"End time must be after start time";
+		document.getElementById("exported").style.display = "none";
 	} else {
 		makeclip(start, end);
 	}

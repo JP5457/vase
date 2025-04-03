@@ -8,8 +8,11 @@
 	<h1>Vase Clipper</h1>
 	<input type="text" id="streamurl" />
 	<button type="button" id="startrecbtn">Start Recording</button>
+	<input type="text" id="streamname" />
 	<p id="streamstate"></p>
 	<button type="button" id="clip1">clip 1 min</button>
+	<button type="button" id="clip5">clip 5 min</button>
+
 	<div id="clipper" style="display: none">
 		<div id="waveform"></div>
 		<input type="time" id="startClip" required />
@@ -23,12 +26,17 @@
 		<a href="" id="download" download="clip.mp3">
 			<button>Download</button>
 		</a>
+		<input type="text" id="clipname" />
+		<button id="storeclip">Publish</button>
 	</div>
 	<div id="loading" style="display: none">
 		<h2>LOADING...</h2>
 	</div>
 	<div id="error" style="display: none">
-		<h2>ERROR</h2>
+		<h2 id="errormsg">ERROR</h2>
+	</div>
+	<div id="exported" style="display: none">
+		<a href="/clips" id="cliplink"><h2 id="exportmsg">CLIP CREATED</h2></a>
 	</div>
 </body>
 <script

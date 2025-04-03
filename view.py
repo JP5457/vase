@@ -11,23 +11,14 @@ import sys
 import secrets
 import re
 import jwt
+import shutil
 
 from RecordingManager import RecordingManager
-
-#url to redirect to when using jwt auth
-notice_url = os.environ.get('NOTICE_URL', "http://127.0.0.1:5042/")
-
-#key used for myradio jwt auth
-myradio_key = os.environ.get('MYRADIO_SIGNING_KEY', "dev")
-
-#key used to validate myradio api requests. This is the only thing you will need to edit for development.
-myradio_api = os.environ.get('MYRADIO_API_KEY', "CHANGE_ME")
+from DBManager import DBManager
 
 #I'm not sure if this does anything but i'm scared to delete it
 log_location = os.environ.get('LOG_LOCATION', "/logs/")
 
-#url of the myradio api, change this if you want to test with the myradio dev instance (you don't)
-myradio_url = os.environ.get('MYRADIO_URL', "https://www.ury.org.uk/api/v2/")
 
 #creates an app and scheduler thread
 class Config:
@@ -48,9 +39,11 @@ app = Flask(__name__)
 app.secret_key = secrets.token_urlsafe(16) 
 
 streamfolder = "/streams/"
-recordingmanager = RecordingManager(streamfolder)
-
 tempclipfolder = "/clipstore/"
+volumefolder = "/opt/"
+
+recordingmanager = RecordingManager(streamfolder)
+dbmanager = DBManager(volumefolder + "vase.db")
 
 @scheduler.task('interval', id='do_job_1', minutes=2, misfire_grace_time=900)
 def job1():
@@ -67,9 +60,12 @@ def randomword(length):
    letters = string.ascii_lowercase
    return ''.join(random.choice(letters) for i in range(length))
 
-def verifyKey(key):
-    pattern = re.compile('^[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789]+$')
-    return re.search(pattern, key)
+def verifyKeys(keys):
+    for key in keys:
+        pattern = re.compile('^[-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789]+$')
+        if not re.search(pattern, key):
+            return False
+    return True
 
 def verifySession(session):
     if myradio_key == "dev":
@@ -100,19 +96,19 @@ def startrec():
 
 @app.route("/clipper/getstate/<uid>")
 def getstate(uid):
-    if not verifyKey(uid):
+    if not verifyKeys([uid]):
         return "error"
     return {'state' : recordingmanager.GetState(int(uid))}
 
 @app.route("/clipper/stoprecording/<uid>")
 def stoprec(uid):
-    if not verifyKey(uid):
+    if not verifyKeys([uid]):
         return "error"
     return {'info' : recordingmanager.StopRecording(int(uid))}
 
 @app.route('/clipper/makeaudio/<uid>/<size>')
 def makeaudio(uid, size):
-    if not verifyKey(uid):
+    if not verifyKeys([uid]):
         return "error"
     times = {
         '1': 60,
@@ -127,12 +123,21 @@ def makeaudio(uid, size):
     clip = AudioSegment.from_mp3(streamfolder + 'stream' + str(uid) + '.mp3')
     if len(clip) > cliplen:
         clip = clip[(-1*cliplen):]
+    else:
+        extralen = cliplen - len(clip) 
+        try:
+            bonusclip = AudioSegment.from_mp3(streamfolder + 'stream-old' + str(uid) + '.mp3')
+            if len(bonusclip) > extralen:
+                bonusclip = bonusclip[(-1*extralen):]
+            clip = bonusclip + clip
+        except:
+            pass
     clip.export(tempclipfolder+clipid+".mp3", format="mp3")
     return {'uid': clipid}
 
 @app.route('/clipper/getaudio/<uid>')
 def getaudio(uid):
-    if not verifyKey(uid):
+    if not verifyKeys([uid]):
         return "keyerror"
     try:
         return send_file(tempclipfolder+uid+".mp3")
@@ -141,7 +146,7 @@ def getaudio(uid):
 
 @app.route('/clipper/getclip/<uid>')
 def getclip(uid):
-    if not verifyKey(uid):
+    if not verifyKeys([uid]):
         return "keyerror"
     try:
         return send_file(tempclipfolder+uid+"_clip.mp3")
@@ -150,7 +155,7 @@ def getclip(uid):
 
 @app.route('/clipper/makeclip/<uid>/<start>/<end>')
 def makeclip(uid,start,end):
-    if not verifyKey(uid):
+    if not verifyKeys([uid, start, end]):
         return "error"
     clip = AudioSegment.from_mp3(tempclipfolder+uid+".mp3")
     clipstart = (int(start)*1000)
@@ -162,6 +167,23 @@ def makeclip(uid,start,end):
     clip = clip[clipstart:clipend]
     clip.export(tempclipfolder+uid+"_clip.mp3", format="mp3")
     return {"status": "complete"}
+
+@app.route('/clipper/saveclip/<uid>/<name>/<stream>')
+def saveclip(uid, name, stream):
+    if not verifyKeys([uid, name, stream]):
+        return "error"
+    clipid = dbmanager.addclip(name, stream)
+    shutil.copyfile(tempclipfolder+uid+"_clip.mp3", (volumefolder + name + str(clipid) + '.mp3'))
+    dbmanager.printclip()
+    return {"uid": clipid}
+
+
+@app.route('/clips/<uid>')
+def viewclip(uid):
+    if not verifyKeys([uid]):
+        return "error"
+    clipinfo = dbmanager.getclip(uid)
+    
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5040))

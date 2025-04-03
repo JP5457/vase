@@ -5,4 +5,4 @@ PyJWT
 flask-wtf
 apscheduler
 Flask-APScheduler
-pydub==0.25.1
+pydub
