@@ -6,10 +6,18 @@
 />
 <html lang="en">
 	<body>
-		<nav id="">
-			<a href="/">Vase</a> <a href="/clipper">clipper</a>
-			<a href="/clips">clips</a>
-		</nav>
+		<div id="desktopnav">
+			<nav>
+				<a href="/">Vase</a> <a href="/clipper">clipper</a>
+				<a href="/clips">clips</a>
+				<a href="/admin">admin</a>
+			</nav>
+		</div>
+		<div id="mobilenav">
+			<nav>
+				<a href="/">Vase</a>
+			</nav>
+		</div>
 		<div class="block">{% block content %}{% endblock %}</div>
 	</body>
 </html>

@@ -59,6 +59,7 @@ h2 {
 }
 
 /* Buttons */
+input[type="submit"],
 button {
 	background-color: #a00000;
 	color: white;
@@ -71,6 +72,7 @@ button {
 	font-size: 1rem;
 }
 
+input[type="submit"]:hover,
 button:hover {
 	background-color: #c40000;
 }
@@ -78,7 +80,8 @@ button:hover {
 /* Inputs */
 input[type="text"],
 input[type="file"],
-input[type="password"] {
+input[type="password"],
+input[type="textarea"] {
 	width: 100%;
 	padding: 0.6rem;
 	margin: 0.5rem 0;
@@ -123,6 +126,14 @@ form {
 	background-color: #f9f9f9;
 }
 
+.announcement {
+	border: 1px solid #ddd;
+	padding: 1rem;
+	margin: 1rem 0;
+	border-radius: 8px;
+	background-color: #f9f9f9;
+}
+
 a {
 	text-decoration: none;
 	color: #a00000;
@@ -157,6 +168,10 @@ audio {
 	display: none;
 }
 
+#mobilenav {
+	display: none;
+}
+
 .feedback {
 	display: flex;
 	flex-direction: row;
@@ -164,16 +179,20 @@ audio {
 
 /* Mobile Responsiveness */
 @media screen and (max-width: 600px) {
-	nav {
-		flex-direction: column;
-	}
-
 	#clipbuttonsmobile {
 		display: block;
 	}
 	#clipbuttons {
 		display: none;
 	}
+
+	#mobilenav {
+		display: block;
+	}
+	#desktopnav {
+		display: none;
+	}
+
 	#loadinginfo {
 		flex-direction: column;
 	}

@@ -89,9 +89,38 @@ def isadmin(session):
     else:
         return False
 
+def format_datetime_readable(datetime_str):
+    dt = datetime.strptime(datetime_str, "%Y-%m-%d %H:%M:%S")
+    def ordinal(n):
+        if 11 <= n % 100 <= 13:
+            suffix = 'th'
+        else:
+            suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')
+        return f"{n}{suffix}"
+    readable = f"Posted at {dt.strftime('%H:%M')} on the {ordinal(dt.day)} of {dt.strftime('%B %Y')}"
+    return readable
+
 @app.route("/")
 def index():
-    return render_template('index.html')
+    announces = dbmanager.getannoucements(5)
+    formatedannouncements = []
+    seeall = False
+    for i in announces:
+        announce = {'title': i[1], 'content': i[2], 'datetime': format_datetime_readable(i[3])}
+        formatedannouncements.append(announce)
+    if len(announces) == 5:
+        seeall = True
+    return render_template('announcements.html', announcements=formatedannouncements, seeall = seeall)
+
+@app.route('/announcements')
+def announcements():
+    announces = dbmanager.getannoucements(100)
+    formatedannouncements = []
+    seeall = False
+    for i in announces:
+        announce = {'title': i[1], 'content': i[2], 'datetime': format_datetime_readable(i[3])}
+        formatedannouncements.append(announce)
+    return render_template('announcements.html', announcements=formatedannouncements, seeall = False)
 
 @app.route("/clipper")
 def clipper():
@@ -314,10 +343,10 @@ def upload_file():
     return render_template("uploadclip.html")
 
 
-@app.route('/admin/', methods=['POST','GET'])
+@app.route('/admin', methods=['POST','GET'])
 def auth():
     if isadmin(session):
-        return "already admin"
+        return render_template('admin.html')
     form = forms.buildLoginForm()
     if form.is_submitted():
         time.sleep(5)
@@ -327,9 +356,23 @@ def auth():
         else:
             session['admin'] = False
             return redirect('/admin', code=302)
-        return redirect('/', code=302)
+        return redirect('/admin', code=302)
     else:
         return render_template('login.html', form=form)
+
+@app.route('/admin/announce', methods=['POST','GET'])
+def announce():
+    if not isadmin(session):
+        return redirect('/admin', code=302)
+    form = forms.buildAnnouncementForm()
+    if form.is_submitted():
+        title = form.title.data
+        content = form.content.data
+        id = dbmanager.addannouncement(title, content)
+        return redirect('/announcements', code=302)
+    else:
+        return render_template("announcementform.html", form=form)
+
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5040))

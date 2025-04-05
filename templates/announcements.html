@@ -1,0 +1,11 @@
+{% extends "base.html" %} {% block content %}
+<h1>Announcements</h1>
+{% for announcement in announcements %}
+<div class="announcement">
+	<h2>{{announcement.title}}</h2>
+	<h4>{{announcement.datetime}}</h4>
+	<p>{{announcement.content}}</p>
+</div>
+{% endfor %} {% if seeall %}
+<a href="/announcements"><button>See All</button> </a>
+{% endif %} {% endblock %}

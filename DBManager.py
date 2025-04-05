@@ -9,7 +9,7 @@ class DBManager:
         conn = sqlite3.connect(self.dbfile)
         cursor = conn.cursor()
         with open("schema.sql", 'r') as schema:
-            cursor.execute(schema.read())
+            cursor.executescript(schema.read())
         conn.commit()
         conn.close()
 
@@ -90,6 +90,26 @@ class DBManager:
         cursor.execute(query, (clipid, ))
         conn.commit()
         conn.close()
+
+    def addannouncement(self, title, content):
+        conn = sqlite3.connect(self.dbfile)
+        cursor = conn.cursor()
+        query = "INSERT INTO announcements (title, content, posted) VALUES (?, ?, current_timestamp) RETURNING id"
+        cursor.execute(query, (title, content))
+        new_id = cursor.fetchone()[0]
+        conn.commit()
+        conn.close()
+        return new_id
+
+    def getannoucements(self, num):
+        conn = sqlite3.connect(self.dbfile)
+        cursor = conn.cursor()
+        query = "SELECT * FROM announcements ORDER BY id DESC LIMIT ?"
+        cursor.execute(query, (num,))
+        announcements = cursor.fetchall()
+        conn.commit()
+        conn.close()
+        return announcements
 
 if __name__ == "__main__":
     dbmanager = DBManager("/home/bigjimmy/Desktop/vase/vase.db")

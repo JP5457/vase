@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from DBManager import DBManager
-from wtforms.fields import StringField, SubmitField
+from wtforms.fields import StringField, SubmitField, PasswordField, TextAreaField
 from wtforms.widgets import TextArea
 
 #Make a form with flask WTF
@@ -10,8 +10,15 @@ class Forms():
 
     def buildLoginForm(self):
         class Login(FlaskForm):
-            password = StringField('Password', default="")
+            password = PasswordField('Password', default="")
             submit = SubmitField('Login')
+        return Login()
+
+    def buildAnnouncementForm(self):
+        class Login(FlaskForm):
+            title = StringField('Title', default="")
+            content = TextAreaField('Content', default="")
+            submit = SubmitField('Post Announcement')
         return Login()
 
     def buildClipEdit(self, clipid):
