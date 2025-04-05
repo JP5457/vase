@@ -1,0 +1,15 @@
+<!DOCTYPE html> <title>Vase</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link
+	rel="stylesheet"
+	href="{{ url_for('static', filename='css/style.css') }}"
+/>
+<html lang="en">
+	<body>
+		<nav id="">
+			<a href="/">Vase</a> <a href="/clipper">clipper</a>
+			<a href="/clips">clips</a>
+		</nav>
+		<div class="block">{% block content %}{% endblock %}</div>
+	</body>
+</html>

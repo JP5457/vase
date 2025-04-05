@@ -1,18 +1,69 @@
-<!DOCTYPE html> <title>Clipper</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<link
-	rel="stylesheet"
-	href="{{ url_for('static', filename='css/style.css') }}"
-/>
-<body>
-	<h1>Vase Clipper</h1>
-	<input type="text" id="streamurl" />
-	<button type="button" id="startrecbtn">Start Recording</button>
-	<input type="text" id="streamname" />
-	<p id="streamstate"></p>
-	<button type="button" id="clip1">clip 1 min</button>
-	<button type="button" id="clip5">clip 5 min</button>
-
+{% extends "base.html" %} {% block content %}
+<div class="clipper settings">
+	<div class="labeledinp">
+		<label>Stream URL:</label>
+		<input type="text" id="streamurl" />
+	</div>
+	<div class="labeledinp">
+		<label>Stream Name:</label>
+		<input type="text" id="streamname" />
+	</div>
+	<div class="labeledinp" id="loadinginfo">
+		<button type="button" id="startrecbtn">Start Recording</button>
+		<div id="loadingstate">
+			<div id="recording" style="display: none">
+				<div class="feedback">
+					<img
+						src="{{ url_for('static', filename='svgs/recording.svg') }}"
+						class="icon"
+					/>
+					<h2>Recording</h2>
+				</div>
+			</div>
+			<div id="paused" style="display: none">
+				<div class="feedback">
+					<img
+						src="{{ url_for('static', filename='svgs/pause.svg') }}"
+						class="icon"
+					/>
+					<h2>No Audio</h2>
+				</div>
+			</div>
+			<div id="closed" style="display: none">
+				<div class="feedback">
+					<img
+						src="{{ url_for('static', filename='svgs/error.svg') }}"
+						class="icon"
+					/>
+					<h2>No Stream</h2>
+				</div>
+			</div>
+			<div id="conerror" style="display: none">
+				<div class="feedback">
+					<img
+						src="{{ url_for('static', filename='svgs/conerror.svg') }}"
+						class="icon"
+					/>
+					<h2>Server Error</h2>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="clippinger" style="display: none">
+		<div class="clipbuttons" id="clipbuttons">
+			<button type="button" id="clip30">clip 30 secs</button>
+			<button type="button" id="clip1">clip 1 min</button>
+			<button type="button" id="clip2">clip 2 min</button>
+			<button type="button" id="clip3">clip 3 min</button>
+			<button type="button" id="clip5">clip 5 min</button>
+		</div>
+		<div class="clipbuttons" id="clipbuttonsmobile">
+			<button type="button" id="clip30m">30s</button>
+			<button type="button" id="clip1m">1m</button>
+			<button type="button" id="clip2m">2m</button>
+			<button type="button" id="clip5m">5m</button>
+		</div>
+	</div>
 	<div id="clipper" style="display: none">
 		<div id="waveform"></div>
 		<input type="time" id="startClip" required />
@@ -23,23 +74,41 @@
 	</div>
 	<div id="exporter" style="display: none">
 		<div id="clipWaveform"></div>
-		<a href="" id="download" download="clip.mp3">
+		<div class="labeledinp">
+			<label>Clip Name:</label>
+			<input type="text" id="clipname" />
+			<button id="storeclip">Publish</button>
+		</div>
+		<div id="exported" style="display: none">
+			<a href="/clips" id="cliplink" target="_blank"
+				><h2 id="exportmsg">CLIP CREATED</h2></a
+			>
+		</div>
+		<a href="" id="download" download>
 			<button>Download</button>
 		</a>
-		<input type="text" id="clipname" />
-		<button id="storeclip">Publish</button>
 	</div>
 	<div id="loading" style="display: none">
-		<h2>LOADING...</h2>
+		<div class="feedback">
+			<img
+				src="{{ url_for('static', filename='svgs/loading.svg') }}"
+				class="icon"
+			/>
+			<h2>LOADING...</h2>
+		</div>
 	</div>
 	<div id="error" style="display: none">
-		<h2 id="errormsg">ERROR</h2>
+		<div class="feedback">
+			<img
+				src="{{ url_for('static', filename='svgs/error.svg') }}"
+				class="icon"
+			/>
+			<h2 id="errormsg">ERROR</h2>
+		</div>
 	</div>
-	<div id="exported" style="display: none">
-		<a href="/clips" id="cliplink"><h2 id="exportmsg">CLIP CREATED</h2></a>
-	</div>
-</body>
-<script
-	src="{{ url_for('static', filename='scripts/clipper.js') }}"
-	type="module"
-></script>
+	<script
+		src="{{ url_for('static', filename='scripts/clipper.js') }}"
+		type="module"
+	></script>
+</div>
+{% endblock %}

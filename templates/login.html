@@ -1,0 +1,11 @@
+{% extends "base.html" %} {% block content %}
+<form action="" method="post" novalidate>
+	<p>
+		{{ form.password.label }}<br />
+		{{ form.password(width="60") }}
+	</p>
+	<p>{{ form.submit() }}</p>
+	<br />
+	<br />
+</form>
+{% endblock %}

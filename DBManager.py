@@ -14,7 +14,7 @@ class DBManager:
         conn.close()
 
 
-    def addclip(self, clipname, streamname="unnamed"):
+    def addclip(self, clipname, streamname):
         conn = sqlite3.connect(self.dbfile)
         cursor = conn.cursor()
         query = "INSERT INTO clips (clipname, streamname) VALUES (?, ?) RETURNING id"
@@ -34,12 +34,61 @@ class DBManager:
         conn.close()
         return clipinfo
 
-    def printclip(self):
+    def filterstream(self, stream):
         conn = sqlite3.connect(self.dbfile)
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM clips")
-        rows = cursor.fetchall()
-        print(rows, file=sys.stderr)
+        query = "SELECT * FROM clips WHERE streamname == ? ORDER BY id DESC"
+        cursor.execute(query, (stream,))
+        clips = cursor.fetchall()
+        conn.commit()
+        conn.close()
+        return clips
+
+    def searchclip(self, search):
+        conn = sqlite3.connect(self.dbfile)
+        cursor = conn.cursor()
+        searchcond = "'%" + search + "%'"
+        query = "SELECT * FROM clips WHERE streamname LIKE "+searchcond+" OR clipname LIKE " + searchcond + " ORDER BY id DESC"
+        cursor.execute(query)
+        clips = cursor.fetchall()
+        conn.commit()
+        conn.close()
+        return clips
+
+    def allclip(self):
+        conn = sqlite3.connect(self.dbfile)
+        cursor = conn.cursor()
+        query = "SELECT * FROM clips ORDER BY id DESC"
+        cursor.execute(query)
+        clips = cursor.fetchall()
+        conn.commit()
+        conn.close()
+        return clips
+
+    def lastclips(self, clips):
+        conn = sqlite3.connect(self.dbfile)
+        cursor = conn.cursor()
+        query = "SELECT * FROM clips ORDER BY id DESC LIMIT ?"
+        cursor.execute(query, (clips,))
+        clips = cursor.fetchall()
+        conn.commit()
+        conn.close()
+        return clips
+
+    def editclip(self, clipid, clipname, streamname):
+        conn = sqlite3.connect(self.dbfile)
+        cursor = conn.cursor()
+        query = "UPDATE clips SET clipname = ?, streamname = ? WHERE id = ?"
+        cursor.execute(query, (clipname, streamname, clipid))
+        conn.commit()
+        conn.close()
+
+    def deleteclip(self, clipid):
+        conn = sqlite3.connect(self.dbfile)
+        cursor = conn.cursor()
+        query = "DELETE FROM clips WHERE id = ?"
+        cursor.execute(query, (clipid, ))
+        conn.commit()
         conn.close()
 
 if __name__ == "__main__":

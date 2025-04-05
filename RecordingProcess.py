@@ -10,7 +10,7 @@ class RecordingProcess(multiprocessing.Process):
     def __init__(self, stream_url, queue, id, folder):
         super().__init__()
         self.stream_url = stream_url
-        self.state = "loading"
+        self.state = "closed"
         self.queue = queue
         self.id = id
         self.folder = folder

@@ -12,13 +12,18 @@ import secrets
 import re
 import jwt
 import shutil
+import time
 
 from RecordingManager import RecordingManager
 from DBManager import DBManager
+from forms import Forms
 
 #I'm not sure if this does anything but i'm scared to delete it
 log_location = os.environ.get('LOG_LOCATION', "/logs/")
 
+admin_password = os.environ.get('ADMIN_PASSWORD', "dev")
+
+vase_url = os.environ.get('VASE_URL', "localhost:5040")
 
 #creates an app and scheduler thread
 class Config:
@@ -44,10 +49,10 @@ volumefolder = "/opt/"
 
 recordingmanager = RecordingManager(streamfolder)
 dbmanager = DBManager(volumefolder + "vase.db")
+forms = Forms(dbmanager)
 
 @scheduler.task('interval', id='do_job_1', minutes=2, misfire_grace_time=900)
 def job1():
-    print("cleaning stream " + str(unix_timestamp) , file=sys.stderr)
     recordingmanager.CleanStreams()
 
 @scheduler.task('interval', id='do_job_2', seconds=1, misfire_grace_time=900)
@@ -78,6 +83,12 @@ def verifySession(session):
             return True
     return False
 
+def isadmin(session):
+    if 'admin' in session:
+        return session['admin']
+    else:
+        return False
+
 @app.route("/")
 def index():
     return render_template('index.html')
@@ -91,6 +102,11 @@ def startrec():
     if request.method == 'POST':
         info = request.get_json(silent=True)
         url = info['url']
+        try:
+            if url[:4] != 'http':
+                url = "http://" + url
+        except:
+            return {'uid': 0}
         uid = recordingmanager.StartRecording(url)
         return {'uid': uid}
 
@@ -114,7 +130,6 @@ def makeaudio(uid, size):
         '1': 60,
         '2': 120,
         '3': 180,
-        '4': 240,
         '5': 300,
         '30': 30
     }
@@ -174,16 +189,147 @@ def saveclip(uid, name, stream):
         return "error"
     clipid = dbmanager.addclip(name, stream)
     shutil.copyfile(tempclipfolder+uid+"_clip.mp3", (volumefolder + name + str(clipid) + '.mp3'))
-    dbmanager.printclip()
     return {"uid": clipid}
 
+
+@app.route('/clips')
+def clips():
+    clips = dbmanager.lastclips(10)
+    formatedclips = []
+    seeall = False
+    for i in clips:
+        clip = {'url': '/clips/'+str(i[0]), 'audiourl': '/clips/audio/'+str(i[0]), 'clipname': i[1].replace('-', ' '), 'streamname': i[2].replace('-', ' '), 'streamurl': '/clips/filter/stream/'+i[2]}
+        if isadmin(session):
+            clip['editurl'] = '/clips/edit/'+str(i[0])
+        formatedclips.append(clip)
+    if len(clips) == 10:
+        seeall = True
+    return render_template('cliplist.html', clips=formatedclips, searchterm = "", seeall = seeall)
 
 @app.route('/clips/<uid>')
 def viewclip(uid):
     if not verifyKeys([uid]):
         return "error"
     clipinfo = dbmanager.getclip(uid)
-    
+    name = clipinfo[1]
+    stream = clipinfo[2]
+    editurl = ""
+    if isadmin(session):
+        editurl = '/clips/edit/'+str(uid)
+    url = '/clips/audio/'+str(uid)
+    return render_template('clippage.html', name=name.replace('-', ' '), stream=stream.replace('-', ' '), url=url, streamurl = '/clips/filter/stream/'+stream, editurl=editurl, linkurl=vase_url+url)
+
+@app.route('/clips/audio/<uid>')
+def getclipaudio(uid):
+    if not verifyKeys([uid]):
+        return "error"
+    clipinfo = dbmanager.getclip(uid)
+    name = clipinfo[1]
+    return send_file(volumefolder + name + str(uid) + '.mp3')
+
+@app.route('/clips/filter/stream/<stream>')
+def clipstreamfilter(stream):
+    if not verifyKeys([stream]):
+        return "error"
+    clips = dbmanager.filterstream(stream)
+    formatedclips = []
+    for i in clips:
+        clip = {'url': '/clips/'+str(i[0]), 'audiourl': '/clips/audio/'+str(i[0]), 'clipname': i[1].replace('-', ' '), 'streamname': i[2].replace('-', ' '), 'streamurl': '/clips/filter/stream/'+i[2]}
+        if isadmin(session):
+            clip['editurl'] = '/clips/edit/'+str(i[0])
+        formatedclips.append(clip)
+    return render_template('cliplist.html', clips=formatedclips, searchterm = "", seeall = False)
+
+@app.route('/clips/search/<search>')
+def clipsearch(search):
+    if not verifyKeys([search]):
+        return "error"
+    clips=dbmanager.searchclip(search)
+    formatedclips = []
+    for i in clips:
+        clip = {'url': '/clips/'+str(i[0]), 'audiourl': '/clips/audio/'+str(i[0]), 'clipname': i[1].replace('-', ' '), 'streamname': i[2].replace('-', ' '), 'streamurl': '/clips/filter/stream/'+i[2]}
+        if isadmin(session):
+            clip['editurl'] = '/clips/edit/'+str(i[0])
+        formatedclips.append(clip)
+    return render_template('cliplist.html', clips=formatedclips, searchterm = search.replace('-', ' '), seeall = False)
+
+@app.route('/clips/all')
+def clipall():
+    clips=dbmanager.allclip()
+    formatedclips = []
+    for i in clips:
+        clip = {'url': '/clips/'+str(i[0]), 'audiourl': '/clips/audio/'+str(i[0]), 'clipname': i[1].replace('-', ' '), 'streamname': i[2].replace('-', ' '), 'streamurl': '/clips/filter/stream/'+i[2]}
+        if isadmin(session):
+            clip['editurl'] = '/clips/edit/'+str(i[0])
+        formatedclips.append(clip)
+    return render_template('cliplist.html', clips=formatedclips, searchterm = "", seeall = False)
+
+@app.route('/clips/edit/<uid>', methods=['POST','GET'])
+def editclip(uid):
+    if not verifyKeys([uid]):
+        return "error"
+    if not isadmin(session):
+        return redirect('/clips/'+str(uid), code=302)
+    form = forms.buildClipEdit(uid)
+    if form.is_submitted():
+        clipname = form.name.data
+        streamname = form.streamname.data
+        dbmanager.editclip(uid, clipname, streamname)
+        return redirect('/clips/'+str(uid), code=302)
+    else:
+        return render_template('editclip.html', form=form, deleteurl = "/clips/delete/"+str(uid))
+
+@app.route('/clips/delete/<uid>')
+def deleteclip(uid):
+    if not verifyKeys([uid]):
+        return "error"
+    if not isadmin(session):
+        return redirect('/clips/'+str(uid), code=302)
+    clipinfo = dbmanager.getclip(uid)
+    os.remove(volumefolder + clipinfo[1] + str(uid) + '.mp3')
+    dbmanager.deleteclip(uid)
+    return redirect('/clips', code=302)
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() == 'mp3'
+
+@app.route('/clips/upload', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        name = request.form['clipname'].replace(" ", "-")
+        if not verifyKeys([name]):
+            return "error"
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            clipid = dbmanager.addclip(name, "Upload")
+            file.save(volumefolder + name + str(clipid) + '.mp3')
+            return redirect('/clips/'+str(clipid), code=302)
+    return render_template("uploadclip.html")
+
+
+@app.route('/admin/', methods=['POST','GET'])
+def auth():
+    if isadmin(session):
+        return "already admin"
+    form = forms.buildLoginForm()
+    if form.is_submitted():
+        time.sleep(5)
+        inputpass = form.password.data
+        if inputpass == admin_password:
+            session['admin'] = True
+        else:
+            session['admin'] = False
+            return redirect('/admin', code=302)
+        return redirect('/', code=302)
+    else:
+        return render_template('login.html', form=form)
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5040))

@@ -1,0 +1,22 @@
+{% extends "base.html" %} {% block content %}
+<h1>{{name}}</h1>
+<a href="{{streamurl}}"><h2>{{stream}}</h2> </a>
+<div id="waveform" />
+<a href="{{url}}" id="download" download>
+	<button>Download</button>
+</a>
+<input type="text" value="{{linkurl}}" id="audiolink" />
+<button id="copytext">Save to Clipboard</button>
+{% if editurl != "" %}
+<a href="{{editurl}}">
+	<button>edit</button>
+</a>
+{% endif %}
+<script>
+	let url = "{{ url }}";
+</script>
+<script
+	src="{{ url_for('static', filename='scripts/clippage.js') }}"
+	type="module"
+></script>
+{% endblock %}

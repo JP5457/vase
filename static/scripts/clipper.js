@@ -52,15 +52,21 @@ function updateState() {
 				return response.json();
 			})
 			.then((data) => {
-				document.getElementById("streamstate").innerText =
-					data["state"];
+				setState(data["state"]);
 			})
 			.catch((error) => {
-				console.error("Fetch error:", error);
-				document.getElementById("streamstate").innerText =
-					"Lost Connection";
+				setState("conerror");
 			});
 	}
+}
+
+function setState(state) {
+	document.getElementById("clippinger").style.display = "block";
+	document.getElementById("recording").style.display = "none";
+	document.getElementById("paused").style.display = "none";
+	document.getElementById("closed").style.display = "none";
+	document.getElementById("conerror").style.display = "none";
+	document.getElementById(state).style.display = "block";
 }
 
 function makeaudio(time) {
@@ -137,8 +143,9 @@ function StoreClip() {
 	if (streamname != "" && clipname != "") {
 		const regex = /^[a-z\d\s]+$/i;
 		if (regex.test(streamname) && regex.test(clipname)) {
-			streamname = streamname.replace(" ", "-");
-			clipname = clipname.replace(" ", "-");
+			streamname = streamname.replace(/\s+/g, "-");
+			clipname = clipname.replace(/\s+/g, "-");
+			console.log(clipname);
 			let apiUrl =
 				"/clipper/saveclip/" +
 				audioid +
@@ -158,19 +165,25 @@ function StoreClip() {
 						"/clips/" + data["uid"];
 					document.getElementById("loading").style.display = "none";
 					document.getElementById("exported").style.display = "block";
+					document.getElementById("error").style.display = "none";
 				})
 				.catch((error) => {
 					document.getElementById("loading").style.display = "none";
+					document.getElementById("exported").style.display = "none";
 					document.getElementById("error").style.display = "block";
 					document.getElementById("errormsg").textContent =
 						"Server error when attempting to save clip";
 				});
 		} else {
+			document.getElementById("loading").style.display = "none";
+			document.getElementById("exported").style.display = "none";
 			document.getElementById("error").style.display = "block";
 			document.getElementById("errormsg").textContent =
 				"Stream name and clip name must be alphanumeric without special characters";
 		}
 	} else {
+		document.getElementById("loading").style.display = "none";
+		document.getElementById("exported").style.display = "none";
 		document.getElementById("error").style.display = "block";
 		document.getElementById("errormsg").textContent =
 			"Stream name and clip name not provided";
@@ -179,21 +192,28 @@ function StoreClip() {
 
 let wavesurfer = WaveSurfer.create({
 	container: "#waveform",
-	waveColor: "#449183",
-	progressColor: "#17473e",
+	waveColor: "#a00000",
+	progressColor: "#c40000",
 	mediaControls: true,
 });
 
 let clipsurfer = WaveSurfer.create({
 	container: "#clipWaveform",
-	waveColor: "#449183",
-	progressColor: "#17473e",
+	waveColor: "#a00000",
+	progressColor: "#c40000",
 	mediaControls: true,
 });
 
 document.getElementById("startrecbtn").addEventListener("click", StartRec);
 document.getElementById("storeclip").addEventListener("click", StoreClip);
 
+document.getElementById("clip30").addEventListener(
+	"click",
+	function () {
+		makeaudio("30");
+	},
+	false
+);
 document.getElementById("clip1").addEventListener(
 	"click",
 	function () {
@@ -201,7 +221,50 @@ document.getElementById("clip1").addEventListener(
 	},
 	false
 );
+document.getElementById("clip2").addEventListener(
+	"click",
+	function () {
+		makeaudio("2");
+	},
+	false
+);
+document.getElementById("clip3").addEventListener(
+	"click",
+	function () {
+		makeaudio("3");
+	},
+	false
+);
 document.getElementById("clip5").addEventListener(
+	"click",
+	function () {
+		makeaudio("5");
+	},
+	false
+);
+
+document.getElementById("clip30m").addEventListener(
+	"click",
+	function () {
+		makeaudio("30");
+	},
+	false
+);
+document.getElementById("clip1m").addEventListener(
+	"click",
+	function () {
+		makeaudio("1");
+	},
+	false
+);
+document.getElementById("clip2m").addEventListener(
+	"click",
+	function () {
+		makeaudio("2");
+	},
+	false
+);
+document.getElementById("clip5m").addEventListener(
 	"click",
 	function () {
 		makeaudio("5");

@@ -1,0 +1,16 @@
+{% extends "base.html" %} {% block content %}
+<form action="" method="post" novalidate>
+	<p>
+		{{ form.name.label }}<br />
+		{{ form.name(width="60") }}
+	</p>
+	<p>
+		{{ form.streamname.label }}<br />
+		{{ form.streamname(width="60") }}
+	</p>
+	<p>{{ form.submit() }}</p>
+	<br />
+	<br />
+	<a href="{{ deleteurl }}"> <h1>Delete Clip</h1> </a>
+</form>
+{% endblock %}
