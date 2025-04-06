@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Upload new Sound</h1>
+<form method=post enctype=multipart/form-data>
+  <input type=file name=file>
+  <p>name:</p>
+  <input type="text" name="soundname">
+  <p>Library:</p>
+  <select name="library" id="library" multiple>
+    <option value="Sustainers">Sustainers</option>
+    <option value="Jingles">Jingles</option>
+    <option value="Beds">Beds</option>
+  </select>
+  <input type=submit value=Upload>
+</form>
+{% endblock %}

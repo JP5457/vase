@@ -1,8 +1,7 @@
-{% extends "base.html" %}
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <div class="labeledinp">
-<input type="text" id="searchterm" class="searchbox" />
-<button type="button" id="searchbtn" class="searchbtn">Search</button>
+	<input type="text" id="searchterm" class="searchbox" />
+	<button type="button" id="searchbtn" class="searchbtn">Search</button>
 </div>
 {% if searchterm != "" %}
 <h2>"{{searchterm}}"</h2>
@@ -16,19 +15,18 @@
 	<a href="{{clip['audiourl']}}" id="download" download>
 		<button>Download</button>
 	</a>
-    {% if clip['editurl'] %}
-    <a href="{{ clip['editurl'] }}">
+	{% if clip['editurl'] %}
+	<a href="{{ clip['editurl'] }}">
 		<button>Edit</button>
 	</a>
-    {% endif %}
+	{% endif %}
 </div>
 {% endfor %} {% if seeall %}
-<a href="/clips/all"
-	><button>See All</button> </a>
-	{% endif %}
-	<script
-		src="{{ url_for('static', filename='scripts/cliplist.js') }}"
-		type="module"
-	></script>
-</a>
+<a href="/clips/all"><button>See All</button> </a>
+{% endif %}
+<a href="/clips/upload"><h4>upload clip</h4></a>
+<script
+	src="{{ url_for('static', filename='scripts/cliplist.js') }}"
+	type="module"
+></script>
 {% endblock %}

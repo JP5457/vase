@@ -343,6 +343,35 @@ def upload_file():
     return render_template("uploadclip.html")
 
 
+@app.route('/sounds/upload', methods=['GET', 'POST'])
+def uploadsound():
+    if not isadmin(session):
+        return redirect('/admin', code=302)
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        name = request.form['soundname'].replace(" ", "-")
+        library = request.form['library']
+        if not verifyKeys([name]):
+            return "error"
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            soundid = dbmanager.addsound(name, library)
+            file.save(volumefolder + str(soundid) + "sound" + '.mp3')
+            return redirect('/sounds/audio/'+str(soundid), code=302)
+    return render_template("uploadsound.html")
+
+@app.route('/sounds/audio/<uid>')
+def getsoundaudio(uid):
+    if not verifyKeys([uid]):
+        return "error"
+    return send_file(volumefolder + str(uid) + "sound" + '.mp3')
+
+
 @app.route('/admin', methods=['POST','GET'])
 def auth():
     if isadmin(session):

@@ -111,6 +111,30 @@ class DBManager:
         conn.close()
         return announcements
 
+    def addsound(self, name, library):
+        conn = sqlite3.connect(self.dbfile)
+        cursor = conn.cursor()
+        query = "INSERT INTO sounds (soundname, library) VALUES (?, ?) RETURNING id"
+        cursor.execute(query, (name, library))
+        new_id = cursor.fetchone()[0]
+        conn.commit()
+        conn.close()
+        return new_id
+
+    def getsounds(self, library="All"):
+        conn = sqlite3.connect(self.dbfile)
+        cursor = conn.cursor()
+        if library == "All":
+            query = "SELECT * FROM sounds ORDER BY id DESC"#
+            cursor.execute(query)
+        else:
+            query = "SELECT * FROM sounds WHERE library = ? ORDER BY id DESC"
+            cursor.execute(query, (library,))
+        sounds = cursor.fetchall()
+        conn.commit()
+        conn.close()
+        return sounds
+
 if __name__ == "__main__":
     dbmanager = DBManager("/home/bigjimmy/Desktop/vase/vase.db")
     print(dbmanager.getclip(3))
