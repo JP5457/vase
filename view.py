@@ -371,6 +371,10 @@ def getsoundaudio(uid):
         return "error"
     return send_file(volumefolder + str(uid) + "sound" + '.mp3')
 
+@app.route('/sounds')
+def sounds():
+    return render_template("soundplayer.html")
+
 
 @app.route('/admin', methods=['POST','GET'])
 def auth():
@@ -401,6 +405,20 @@ def announce():
         return redirect('/announcements', code=302)
     else:
         return render_template("announcementform.html", form=form)
+
+@app.route('/admin/threads')
+def recthreads():
+    if not isadmin(session):
+        return redirect('/admin', code=302)
+    threads = recordingmanager.GetAllStates()
+    return render_template("threads.html", threads=threads)
+
+@app.route('/admin/threads/close/<uid>')
+def closethread(uid):
+    if not isadmin(session):
+        return redirect('/admin', code=302)
+    recordingmanager.StopRecording(int(uid))
+    return redirect('/admin/threads', code=302)
 
 
 if __name__ == "__main__":

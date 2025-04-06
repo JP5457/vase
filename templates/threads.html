@@ -1,0 +1,20 @@
+{% extends "base.html" %} {% block content %}
+<table>
+	<tr>
+		<td>ID</td>
+		<td>Stream Url</td>
+		<td>Time Since Used</td>
+		<td>State</td>
+		<td></td>
+	</tr>
+	{% for thread in threads %}
+	<tr>
+		<td>{{thread['id']}}</td>
+		<td>{{thread['url']}}</td>
+		<td>{{thread['lastread']}}</td>
+		<td>{{thread['state']}}</td>
+		<td><a href="{{thread['delete']}}">delete</a></td>
+	</tr>
+	{% endfor %}
+</table>
+{% endblock %}

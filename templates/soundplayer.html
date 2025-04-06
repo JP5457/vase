@@ -1,0 +1,36 @@
+{% extends "base.html" %} {% block content %}
+<link
+	rel="stylesheet"
+	href="{{ url_for('static', filename='css/player.css') }}"
+/>
+<div class="player">
+	<h2 id="current-track">No Track Playing</h2>
+	<audio id="audio" preload="metadata"></audio>
+	<div class="progress-container" onclick="seekTrack(event)">
+		<div class="progress" id="progress"></div>
+	</div>
+	<div class="controls">
+		<button onclick="previousTrack()">Prev</button>
+		<button onclick="restartTrack()">Restart</button>
+		<button onclick="togglePlayPause()" id="playPauseBtn">Play</button>
+		<button onclick="nextTrack()">Next</button>
+	</div>
+	<div class="loop-toggle">
+		<label
+			><input type="checkbox" id="loopCheckbox" onchange="toggleLoop()" />
+			Loop</label
+		>
+		<label><input type="checkbox" id="fadeCheckbox" /> Fade Between</label>
+	</div>
+	<div class="queue">
+		<h3>Queue</h3>
+		<ul id="trackQueue"></ul>
+	</div>
+</div>
+
+<div class="all-tracks">
+	<h3>All Tracks</h3>
+	<ul id="allTracksList"></ul>
+</div>
+<script src="{{ url_for('static', filename='scripts/player.js') }}"></script>
+{%endblock%}

@@ -39,6 +39,13 @@ class RecordingManager:
         except:
             return "closed"
 
+    def GetAllStates(self):
+        toret = []
+        for i in self.threads:
+            info = {'id': i, "url": self.threads[i]["url"], "lastread": (datetime.now() - datetime(1970, 1, 1)).total_seconds()-self.threads[i]["lastread"], "state": self.states[i], "delete": "/admin/threads/close/"+str(i)}
+            toret.append(info)
+        return toret
+
     def UpdateStates(self):
         try:
             self.states = self.queue.get()
@@ -59,9 +66,12 @@ class RecordingManager:
 
     def CleanStreams(self):
         currenttime = (datetime.now() - datetime(1970, 1, 1)).total_seconds()
+        tostop = []
         for i in self.threads:
             if (currenttime - self.threads[i]["lastread"]) > 900:
-                self.StopRecording(i)
+                tostop.append(i)
+        for i in tostop:
+            self.StopRecording(i)
         
 if __name__ == "__main__":
     manager = RecordingManager('/home/bigjimmy/Desktop/vase/')
