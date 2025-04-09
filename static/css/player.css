@@ -1,20 +1,18 @@
 body {
 	font-family: Arial, sans-serif;
-	background: #111;
-	color: #eee;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	padding: 20px;
 }
-.player {
-	background: #222;
-	padding: 20px;
-	border-radius: 12px;
-	width: 300px;
-	box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-	margin-bottom: 20px;
+
+.controls {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
 }
+
 .controls button {
 	margin: 5px;
 }
@@ -29,14 +27,21 @@ body {
 }
 .progress {
 	height: 100%;
-	background: #0f0;
+	background: #a00000;
 	width: 0%;
 	border-radius: 5px;
 	transition: width 0.2s linear;
 }
+
+.tracks {
+	display: flex;
+	flex-direction: row;
+}
+
 .queue,
 .all-tracks {
-	margin-top: 20px;
+	width: 50%;
+	margin: 20px;
 }
 .queue ul,
 .all-tracks ul {
@@ -45,7 +50,8 @@ body {
 }
 .queue li,
 .all-tracks li {
-	background: #333;
+	background: #a00000;
+	color: #fff;
 	padding: 10px;
 	margin: 5px 0;
 	cursor: pointer;
@@ -54,8 +60,50 @@ body {
 	align-items: center;
 }
 .active-track {
-	background: #555 !important;
+	background: white !important;
+	color: black !important;
+	border: solid;
+	border-width: 2px !important;
+	border-color: #a00000 !important;
 }
 .loop-toggle {
 	margin-top: 10px;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+	align-items: center;
+}
+
+.svg-icon-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.5rem;
+	height: 2.5rem;
+	background-color: white;
+	color: white;
+	border: solid;
+	border-radius: 5px;
+	border-color: #a00000;
+	cursor: pointer;
+	transition: background 0.2s ease, transform 0.2s ease;
+	padding: 0.4rem;
+}
+
+.svg-icon-button:hover {
+	background-color: #c40000;
+	transform: scale(1.05);
+}
+
+.svg-icon-button:active {
+	transform: scale(1);
+}
+
+/* SVG inside button */
+.svg-button svg,
+.svg-icon-button svg {
+	width: 1.2rem;
+	height: 1.2rem;
+	fill: currentColor;
+	transition: fill 0.2s ease;
 }

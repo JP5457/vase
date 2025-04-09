@@ -210,6 +210,44 @@ audio {
 	flex-direction: row;
 }
 
+/* Checkboxes */
+input[type="checkbox"] {
+	accent-color: #a00000;
+	width: 1.2rem;
+	height: 1.2rem;
+	margin-right: 0.5rem;
+	cursor: pointer;
+	vertical-align: middle;
+}
+
+/* Checkbox label alignment */
+.checkbox-label {
+	display: flex;
+	align-items: center;
+	font-weight: bold;
+	margin: 0.5rem 0;
+}
+
+/* Select Dropdowns */
+select {
+	width: 100%;
+	padding: 0.6rem;
+	margin: 0.5rem 0;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	font-size: 1rem;
+	background-color: white;
+	color: black;
+	cursor: pointer;
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D'10'%20height%3D'6'%20viewBox%3D'0%200%2010%206'%20xmlns%3D'http%3A//www.w3.org/2000/svg'%3E%3Cpath%20d%3D'M0%200l5%206%205-6z'%20fill%3D'%23666'%20/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 0.75rem center;
+	background-size: 0.65rem auto;
+}
+
 /* Mobile Responsiveness */
 @media screen and (max-width: 600px) {
 	#clipbuttonsmobile {

@@ -42,7 +42,7 @@ class RecordingManager:
     def GetAllStates(self):
         toret = []
         for i in self.threads:
-            info = {'id': i, "url": self.threads[i]["url"], "lastread": (datetime.now() - datetime(1970, 1, 1)).total_seconds()-self.threads[i]["lastread"], "state": self.states[i], "delete": "/admin/threads/close/"+str(i)}
+            info = {'id': i, "url": self.threads[i]["url"], "lastread": (datetime.now() - datetime(1970, 1, 1)).total_seconds()-self.threads[i]["lastread"], "state": self.GetState(i), "delete": "/admin/threads/close/"+str(i)}
             toret.append(info)
         return toret
 

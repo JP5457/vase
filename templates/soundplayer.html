@@ -3,34 +3,61 @@
 	rel="stylesheet"
 	href="{{ url_for('static', filename='css/player.css') }}"
 />
-<div class="player">
-	<h2 id="current-track">No Track Playing</h2>
-	<audio id="audio" preload="metadata"></audio>
-	<div class="progress-container" onclick="seekTrack(event)">
-		<div class="progress" id="progress"></div>
+<h2 id="current-track">No Track Playing</h2>
+<audio id="audio" preload="metadata"></audio>
+<div class="progress-container" onclick="seekTrack(event)">
+	<div class="progress" id="progress"></div>
+</div>
+<p id="trackLength">00:00 / 00:00</p>
+<div class="controls">
+<button onclick="previousButton()" class="svg-icon-button">					
+    <img
+    src="{{ url_for('static', filename='svgs/back.svg') }}"
+/></button>
+<button onclick="togglePlayPause()" id="playPauseBtn" class="svg-icon-button">					
+    <img
+    src="{{ url_for('static', filename='svgs/play.svg') }}"
+    id="playicon"
+/> 					
+<img
+src="{{ url_for('static', filename='svgs/pause.svg') }}"
+id="pauseicon"
+style="display: none;"
+/>
+</button>
+<button onclick="nextTrack()" class="svg-icon-button">					
+    <img
+    src="{{ url_for('static', filename='svgs/next.svg') }}"
+/></button>
+</div>
+<div class="loop-toggle">
+	<label
+		><input type="checkbox" id="loopCheckbox" onchange="toggleLoop()" />
+		Loop</label
+	>
+	<label><input type="checkbox" id="autoplayCheckbox" /> autoplay next</label>
+	<label><input type="checkbox" id="fadeCheckbox" /> Fade Between</label>
+</div>
+<div class="tracks">
+	<div class="all-tracks">
+		<h3>Library</h3>
+        <select name="libraryPicker" id="libraryPicker" onchange="updateLibrary()">
+            <option value="All" selected>All</option>
+            <option value="Sustainers">Sustainers</option>
+            <option value="Jingles">Jingles</option>
+            <option value="Beds">Beds</option>
+        </select>
+		<ul id="allTracksList"></ul>
 	</div>
-	<div class="controls">
-		<button onclick="previousTrack()">Prev</button>
-		<button onclick="restartTrack()">Restart</button>
-		<button onclick="togglePlayPause()" id="playPauseBtn">Play</button>
-		<button onclick="nextTrack()">Next</button>
-	</div>
-	<div class="loop-toggle">
-		<label
-			><input type="checkbox" id="loopCheckbox" onchange="toggleLoop()" />
-			Loop</label
-		>
-		<label><input type="checkbox" id="fadeCheckbox" /> Fade Between</label>
-	</div>
+
 	<div class="queue">
 		<h3>Queue</h3>
 		<ul id="trackQueue"></ul>
 	</div>
 </div>
-
-<div class="all-tracks">
-	<h3>All Tracks</h3>
-	<ul id="allTracksList"></ul>
+	<script>
+		alltracks = {{ tracklist|tojson }};
+	</script>
+	<script src="{{ url_for('static', filename='scripts/player.js') }}"></script>
+	{%endblock%}
 </div>
-<script src="{{ url_for('static', filename='scripts/player.js') }}"></script>
-{%endblock%}

@@ -373,7 +373,11 @@ def getsoundaudio(uid):
 
 @app.route('/sounds')
 def sounds():
-    return render_template("soundplayer.html")
+    sounds = dbmanager.getsounds("All")
+    formatedsounds = []
+    for i in sounds:
+        formatedsounds.append({'id': i[0], 'name': i[1].replace("-", " "), 'link': '/sounds/audio/'+str(i[0]), 'library': i[2]})
+    return render_template("soundplayer.html", tracklist=formatedsounds)
 
 
 @app.route('/admin', methods=['POST','GET'])
