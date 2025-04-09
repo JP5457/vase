@@ -8,17 +8,56 @@
 	<body>
 		<div id="desktopnav">
 			<nav>
-				<a href="/">Vase</a> <a href="/clipper">clipper</a>
-				<a href="/clips">clips</a>
-				<a href="/sounds">sounds</a>
-				<a href="/admin">admin</a>
+				<span><a href="/">Vase</a></span>
+				<span><a href="/">Home</a></span>
+				<span><a href="/clipper">clipper</a></span>
+				<span><a href="/clips">clips</a></span>
+				<span><a href="/sounds">sounds</a></span>
+				<span><a href="/admin">admin</a></span>
 			</nav>
 		</div>
 		<div id="mobilenav">
 			<nav>
-				<a href="/">Vase</a>
+				<a onclick="togglePane()" id="menuBtn" class="svg-icon-menu">
+					<img
+						src="{{ url_for('static', filename='svgs/burger.svg') }}"
+						id="menuicon"
+					/>
+				</a>
+				<span><a href="/">Vase</a></span>
 			</nav>
+		</div>
+		<div id="mobilenav-pane">
+			<span>
+				<a onclick="closePane()">X</a>
+			</span>
+			<a href="/">Home</a>
+			<a href="/clipper">Clipper</a>
+			<a href="/clips">Clips</a>
+			<a href="/sounds">Sounds</a>
+			<a href="/admin">Admin</a>
 		</div>
 		<div class="block">{% block content %}{% endblock %}</div>
 	</body>
+	<script>
+		const mobbileNavPane = document.querySelector("#mobilenav-pane");
+		mobbileNavPane.addEventListener("click", (e) => {
+			e.stopPropagation();
+		});
+		document.querySelector("body").addEventListener("click", (e) => {
+			if (e.target.id === "menuicon") {
+				return;
+			}
+			closePane();
+		});
+		const closePane = () => {
+			mobbileNavPane.classList.remove("active");
+		};
+		const showPane = () => {
+			mobbileNavPane.classList.add("active");
+		};
+		const togglePane = () => {
+			mobbileNavPane.classList.toggle("active");
+		};
+	</script>
 </html>

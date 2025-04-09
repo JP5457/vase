@@ -135,6 +135,40 @@ class DBManager:
         conn.close()
         return sounds
 
+    def deletesound(self, soundid):
+        conn = sqlite3.connect(self.dbfile)
+        cursor = conn.cursor()
+        query = "DELETE FROM sounds WHERE id = ?"
+        cursor.execute(query, (soundid, ))
+        conn.commit()
+        conn.close()
+
+    def deleteannouncement(self, id):
+        conn = sqlite3.connect(self.dbfile)
+        cursor = conn.cursor()
+        query = "DELETE FROM announcements WHERE id = ?"
+        cursor.execute(query, (id, ))
+        conn.commit()
+        conn.close()
+
+    def editannouncement(self, id, title, content):
+        conn = sqlite3.connect(self.dbfile)
+        cursor = conn.cursor()
+        query = "UPDATE announcements SET title = ?, content = ? WHERE id = ?"
+        cursor.execute(query, (title, content, id))
+        conn.commit()
+        conn.close()
+
+    def getannouncement(self, id):
+        conn = sqlite3.connect(self.dbfile)
+        cursor = conn.cursor()
+        query = "SELECT * FROM announcements WHERE id == ?"
+        cursor.execute(query, (id,))
+        announcementinfo = cursor.fetchone()
+        conn.commit()
+        conn.close()
+        return announcementinfo
+
 if __name__ == "__main__":
     dbmanager = DBManager("/home/bigjimmy/Desktop/vase/vase.db")
     print(dbmanager.getclip(3))

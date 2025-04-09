@@ -28,6 +28,7 @@ nav {
 	width: 100%;
 	max-width: 100%;
 	z-index: 1000;
+	align-items: baseline;
 }
 
 nav a {
@@ -36,11 +37,73 @@ nav a {
 	font-weight: bold;
 	padding: 0.5rem;
 	transition: background 0.2s ease;
+	border-radius: 75px;
 }
 
-nav a:hover {
+nav > span:nth-child(1) {
+	font-size: 30px;
+	padding-right: 1.5rem;
+}
+
+#desktopnav > nav a:hover,
+#mobilenav-pane a:hover {
+	background-color: #bd4747;
+	text-decoration: none !important;
+}
+
+#desktopnav > nav:nth-child(1) > span:nth-child(1) > a:nth-child(1) {
 	background-color: #a00000;
-	border-radius: 5px;
+}
+
+#mobilenav-pane a:nth-child(1):hover {
+	background-color: #a00000;
+}
+
+#mobilenav {
+	font-size: 30px;
+}
+
+#mobilenav a:hover {
+	text-decoration: none;
+}
+
+#mobilenav-pane {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100vh;
+	width: 50vw;
+	background-color: #a00000;
+	flex-direction: column;
+	z-index: 10;
+	padding: 70px 0 0 15px;
+	transform: translateX(-100%);
+	transition: transform 300ms ease-in-out;
+	display: flex;
+}
+
+#mobilenav-pane.active {
+	transform: translateX(0);
+}
+
+#mobilenav-pane a {
+	font-weight: bold;
+	padding: 0.5rem;
+	z-index: 11;
+	color: white !important;
+	cursor: pointer;
+}
+
+#mobilenav-pane span {
+	display: flex;
+	flex-direction: row;
+	align-self: end;
+	padding: 0 20px;
+	color: black;
+}
+
+#menuBtn {
+	cursor: pointer;
 }
 
 /* Headings */

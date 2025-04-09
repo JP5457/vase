@@ -1,0 +1,24 @@
+{% extends "base.html" %} {% block content %}
+<table>
+	<tr>
+		<td>ID</td>
+		<td>name</td>
+		<td>audio</td>
+		<td>library</td>
+		<td></td>
+	</tr>
+	{% for sound in sounds %}
+	<tr>
+		<td>{{sound['id']}}</td>
+		<td>{{sound['name']}}</td>
+		<td>
+			<audio controls>
+				<source src="{{sound['link']}}" type="audio/mp3" />
+			</audio>
+		</td>
+		<td>{{sound['library']}}</td>
+		<td><a href="{{sound['delete']}}">delete</a></td>
+	</tr>
+	{% endfor %}
+</table>
+{% endblock %}

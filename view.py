@@ -267,7 +267,7 @@ def clipstreamfilter(stream):
         if isadmin(session):
             clip['editurl'] = '/clips/edit/'+str(i[0])
         formatedclips.append(clip)
-    return render_template('cliplist.html', clips=formatedclips, searchterm = "", seeall = False)
+    return render_template('cliplist.html', clips=formatedclips, searchterm = stream.replace('-', ' '), seeall = False)
 
 @app.route('/clips/search/<search>')
 def clipsearch(search):
@@ -379,6 +379,26 @@ def sounds():
         formatedsounds.append({'id': i[0], 'name': i[1].replace("-", " "), 'link': '/sounds/audio/'+str(i[0]), 'library': i[2]})
     return render_template("soundplayer.html", tracklist=formatedsounds)
 
+@app.route('/sounds/list')
+def soundlist():
+    if not isadmin(session):
+        return redirect('/sounds', code=302)
+    sounds = dbmanager.getsounds("All")
+    formatedsounds = []
+    for i in sounds:
+        formatedsounds.append({'id': i[0], 'name': i[1].replace("-", " "), 'link': '/sounds/audio/'+str(i[0]), 'library': i[2], 'delete': '/sounds/delete/'+str(i[0])})
+    return render_template("soundslist.html", sounds=formatedsounds)
+
+@app.route('/sounds/delete/<uid>')
+def deletesound(uid):
+    if not verifyKeys([uid]):
+        return "error"
+    if not isadmin(session):
+        return redirect('/sounds', code=302)
+    os.remove(volumefolder + str(uid) + "sound" + '.mp3')
+    dbmanager.deletesound(uid)
+    return redirect('/sounds/list', code=302)
+
 
 @app.route('/admin', methods=['POST','GET'])
 def auth():
@@ -401,7 +421,7 @@ def auth():
 def announce():
     if not isadmin(session):
         return redirect('/admin', code=302)
-    form = forms.buildAnnouncementForm()
+    form = forms.buildAnnouncementForm("", "")
     if form.is_submitted():
         title = form.title.data
         content = form.content.data
@@ -409,6 +429,42 @@ def announce():
         return redirect('/announcements', code=302)
     else:
         return render_template("announcementform.html", form=form)
+
+@app.route('/admin/announce/list')
+def announcelist():
+    if not isadmin(session):
+        return redirect('/admin', code=302)
+    announces = dbmanager.getannoucements(100)
+    formatedannouncements = []
+    seeall = False
+    for i in announces:
+        announce = {'id': i[0], 'title': i[1], 'content': i[2], 'time': str(i[3]), 'edit': '/admin/announce/edit/'+str(i[0]), 'delete': '/admin/announce/delete/'+str(i[0])}
+        formatedannouncements.append(announce)
+    return render_template('announcementlist.html', announcements=formatedannouncements)
+
+@app.route('/admin/announce/delete/<uid>')
+def announcementdelete(uid):
+    if not verifyKeys([uid]):
+        return "error"
+    if not isadmin(session):
+        return redirect('/', code=302)
+    dbmanager.deleteannouncement(uid)
+    return redirect('/admin/announce/list', code=302)
+
+@app.route('/admin/announce/edit/<uid>', methods=['POST','GET'])
+def announcementedit(uid):
+    if not isadmin(session):
+        return redirect('/admin', code=302)
+    info = dbmanager.getannouncement(uid)
+    form = forms.buildAnnouncementForm(info[1], info[2])
+    if form.is_submitted():
+        title = form.title.data
+        content = form.content.data
+        id = dbmanager.editannouncement(uid, title, content)
+        return redirect('/announcements', code=302)
+    else:
+        return render_template("announcementform.html", form=form)
+
 
 @app.route('/admin/threads')
 def recthreads():

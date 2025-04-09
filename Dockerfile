@@ -12,7 +12,8 @@ RUN mkdir -p /clipstore
 WORKDIR /app
 
 # install the dependencies and packages in the requirements file
-RUN pip install -r requirements.txt
+RUN pip install wheel==0.45.1
+RUN pip install -r requirements.txt 
 RUN apk add --no-cache ffmpeg
 
 # copy every content from the local file to the image

@@ -14,10 +14,10 @@ class Forms():
             submit = SubmitField('Login')
         return Login()
 
-    def buildAnnouncementForm(self):
+    def buildAnnouncementForm(self, defaulttitle="", defaultcontent=""):
         class Login(FlaskForm):
-            title = StringField('Title', default="")
-            content = TextAreaField('Content', default="")
+            title = StringField('Title', default=defaulttitle)
+            content = TextAreaField('Content', default=defaultcontent)
             submit = SubmitField('Post Announcement')
         return Login()
 

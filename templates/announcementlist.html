@@ -1,0 +1,20 @@
+{% extends "base.html" %} {% block content %}
+<table>
+	<tr>
+		<td>ID</td>
+		<td>name</td>
+		<td>time</td>
+		<td></td>
+		<td></td>
+	</tr>
+	{% for announce in announcements %}
+	<tr>
+		<td>{{announce['id']}}</td>
+		<td>{{announce['title']}}</td>
+		<td>{{announce['time']}}</td>
+		<td><a href="{{announce['edit']}}">edit</a></td>
+		<td><a href="{{announce['delete']}}">delete</a></td>
+	</tr>
+	{% endfor %}
+</table>
+{% endblock %}
