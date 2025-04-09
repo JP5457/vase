@@ -24,6 +24,8 @@ log_location = os.environ.get('LOG_LOCATION', "/logs/")
 
 admin_password = os.environ.get('ADMIN_PASSWORD', "dev")
 
+vase_url = os.environ.get('VASE_URL', "localhost:5040")
+
 #creates an app and scheduler thread
 class Config:
     SCHEDULER_API_ENABLED = True
@@ -245,7 +247,7 @@ def viewclip(uid):
     if isadmin(session):
         editurl = '/clips/edit/'+str(uid)
     url = '/clips/audio/'+str(uid)
-    return render_template('clippage.html', name=name.replace('-', ' '), stream=stream.replace('-', ' '), url=url, streamurl = '/clips/filter/stream/'+stream, editurl=editurl, linkurl=url)
+    return render_template('clippage.html', name=name.replace('-', ' '), stream=stream.replace('-', ' '), url=url, streamurl = '/clips/filter/stream/'+stream, editurl=editurl, linkurl=vase_url+url)
 
 @app.route('/clips/audio/<uid>')
 def getclipaudio(uid):
