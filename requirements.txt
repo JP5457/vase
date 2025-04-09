@@ -6,3 +6,4 @@ flask-wtf
 apscheduler
 Flask-APScheduler
 pydub
+waitress

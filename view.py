@@ -1,4 +1,5 @@
 from flask import Flask, render_template, redirect, session, request, send_file
+from waitress import serve
 from flask_apscheduler import APScheduler
 from datetime import datetime
 from pydub import AudioSegment
@@ -22,8 +23,6 @@ from forms import Forms
 log_location = os.environ.get('LOG_LOCATION', "/logs/")
 
 admin_password = os.environ.get('ADMIN_PASSWORD', "dev")
-
-vase_url = os.environ.get('VASE_URL', "localhost:5040")
 
 #creates an app and scheduler thread
 class Config:
@@ -246,7 +245,7 @@ def viewclip(uid):
     if isadmin(session):
         editurl = '/clips/edit/'+str(uid)
     url = '/clips/audio/'+str(uid)
-    return render_template('clippage.html', name=name.replace('-', ' '), stream=stream.replace('-', ' '), url=url, streamurl = '/clips/filter/stream/'+stream, editurl=editurl, linkurl=vase_url+url)
+    return render_template('clippage.html', name=name.replace('-', ' '), stream=stream.replace('-', ' '), url=url, streamurl = '/clips/filter/stream/'+stream, editurl=editurl, linkurl=url)
 
 @app.route('/clips/audio/<uid>')
 def getclipaudio(uid):
@@ -483,5 +482,7 @@ def closethread(uid):
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5040))
-    print("Starting server on port " + str(port) , file=sys.stderr)
-    app.run(debug=False, host='0.0.0.0', port=port)
+    threads = int(os.environ.get('THREADS', 20))
+    print("Starting server on port " + str(port) + " with " + str(threads) + " threads", file=sys.stderr)
+    #app.run(debug=False, host='0.0.0.0', port=port)
+    serve(app, host='0.0.0.0',port=5040,threads=threads)
