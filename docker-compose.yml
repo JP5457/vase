@@ -1,0 +1,13 @@
+services:
+    vase:
+        build: .
+        image: vase:latest
+        container_name: vase_container
+        volumes:
+            - ./static:/app/static
+            - ./templates:/app/templates
+            - flowerpot:/opt/
+        ports:
+            - "5040:5040"
+volumes:
+    flowerpot:

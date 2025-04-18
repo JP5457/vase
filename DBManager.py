@@ -17,7 +17,7 @@ class DBManager:
     def addclip(self, clipname, streamname):
         conn = sqlite3.connect(self.dbfile)
         cursor = conn.cursor()
-        query = "INSERT INTO clips (clipname, streamname) VALUES (?, ?) RETURNING id"
+        query = "INSERT INTO clips (clipname, streamname, clipped) VALUES (?, ?, current_timestamp) RETURNING id"
         cursor.execute(query, (clipname, streamname))
         new_id = cursor.fetchone()[0]
         conn.commit()
@@ -168,8 +168,3 @@ class DBManager:
         conn.commit()
         conn.close()
         return announcementinfo
-
-if __name__ == "__main__":
-    dbmanager = DBManager("/home/bigjimmy/Desktop/vase/vase.db")
-    print(dbmanager.getclip(3))
-

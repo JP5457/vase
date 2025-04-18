@@ -42,7 +42,7 @@ class RecordingManager:
     def GetAllStates(self):
         toret = []
         for i in self.threads:
-            info = {'id': i, "url": self.threads[i]["url"], "lastread": (datetime.now() - datetime(1970, 1, 1)).total_seconds()-self.threads[i]["lastread"], "state": self.GetState(i), "delete": "/admin/threads/close/"+str(i)}
+            info = {'id': i, "url": self.threads[i]["url"], "lastread": int((datetime.now() - datetime(1970, 1, 1)).total_seconds()-self.threads[i]["lastread"]), "state": self.GetState(i), "delete": "/admin/threads/close/"+str(i)}
             toret.append(info)
         return toret
 
@@ -72,16 +72,5 @@ class RecordingManager:
                 tostop.append(i)
         for i in tostop:
             self.StopRecording(i)
-        
-if __name__ == "__main__":
-    manager = RecordingManager('/home/bigjimmy/Desktop/vase/')
-    id2 = manager.StartRecording('http://audio.ury.org.uk/jukebox')
-    for i in range(1, 70):
-        manager.UpdateStates()
-        print(manager.GetState(id2) + " " + str(id2))
-        if i > 68:
-            print(manager.StopRecording(id2))      
-        time.sleep(1)
-    print("finished")
 
     

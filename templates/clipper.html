@@ -17,7 +17,7 @@
 						src="{{ url_for('static', filename='svgs/recording.svg') }}"
 						class="icon"
 					/>
-					<h2>Recording</h2>
+					<h2 class="status">Recording</h2>
 				</div>
 			</div>
 			<div id="paused" style="display: none">
@@ -26,7 +26,7 @@
 						src="{{ url_for('static', filename='svgs/pause.svg') }}"
 						class="icon"
 					/>
-					<h2>No Audio</h2>
+					<h2 class="status">No Audio</h2>
 				</div>
 			</div>
 			<div id="closed" style="display: none">
@@ -35,7 +35,7 @@
 						src="{{ url_for('static', filename='svgs/error.svg') }}"
 						class="icon"
 					/>
-					<h2>No Stream</h2>
+					<h2 class="status">No Stream</h2>
 				</div>
 			</div>
 			<div id="conerror" style="display: none">
@@ -44,7 +44,7 @@
 						src="{{ url_for('static', filename='svgs/conerror.svg') }}"
 						class="icon"
 					/>
-					<h2>Server Error</h2>
+					<h2 class="status">Server Error</h2>
 				</div>
 			</div>
 		</div>
@@ -94,7 +94,7 @@
 				src="{{ url_for('static', filename='svgs/loading.svg') }}"
 				class="icon"
 			/>
-			<h2>LOADING...</h2>
+			<h2 class="status">LOADING...</h2>
 		</div>
 	</div>
 	<div id="error" style="display: none">
@@ -103,7 +103,7 @@
 				src="{{ url_for('static', filename='svgs/error.svg') }}"
 				class="icon"
 			/>
-			<h2 id="errormsg">ERROR</h2>
+			<h2 id="errormsg" class="status">ERROR</h2>
 		</div>
 	</div>
 	<script

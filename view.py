@@ -2,6 +2,7 @@ from flask import Flask, render_template, redirect, session, request, send_file
 from waitress import serve
 from flask_apscheduler import APScheduler
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from pydub import AudioSegment
 import os
 import requests
@@ -90,15 +91,18 @@ def isadmin(session):
     else:
         return False
 
+
 def format_datetime_readable(datetime_str):
-    dt = datetime.strptime(datetime_str, "%Y-%m-%d %H:%M:%S")
+    dt_utc = datetime.strptime(datetime_str, "%Y-%m-%d %H:%M:%S")
+    dt_utc = dt_utc.replace(tzinfo=ZoneInfo("UTC"))
+    dt_uk = dt_utc.astimezone(ZoneInfo("Europe/London"))
     def ordinal(n):
         if 11 <= n % 100 <= 13:
             suffix = 'th'
         else:
             suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')
         return f"{n}{suffix}"
-    readable = f"Posted at {dt.strftime('%H:%M')} on the {ordinal(dt.day)} of {dt.strftime('%B %Y')}"
+    readable = f"{dt_uk.strftime('%H:%M')} on the {ordinal(dt_uk.day)} of {dt_uk.strftime('%B %Y')}"
     return readable
 
 @app.route("/")
@@ -228,7 +232,7 @@ def clips():
     formatedclips = []
     seeall = False
     for i in clips:
-        clip = {'url': '/clips/'+str(i[0]), 'audiourl': '/clips/audio/'+str(i[0]), 'clipname': i[1].replace('-', ' '), 'streamname': i[2].replace('-', ' '), 'streamurl': '/clips/filter/stream/'+i[2]}
+        clip = {'url': '/clips/'+str(i[0]), 'audiourl': '/clips/audio/'+str(i[0]), 'clipname': i[1].replace('-', ' '), 'streamname': i[2].replace('-', ' '), 'streamurl': '/clips/filter/stream/'+i[2], 'datetime': format_datetime_readable(i[3])}
         if isadmin(session):
             clip['editurl'] = '/clips/edit/'+str(i[0])
         formatedclips.append(clip)
@@ -243,11 +247,12 @@ def viewclip(uid):
     clipinfo = dbmanager.getclip(uid)
     name = clipinfo[1]
     stream = clipinfo[2]
+    time = clipinfo[3]
     editurl = ""
     if isadmin(session):
         editurl = '/clips/edit/'+str(uid)
     url = '/clips/audio/'+str(uid)
-    return render_template('clippage.html', name=name.replace('-', ' '), stream=stream.replace('-', ' '), url=url, streamurl = '/clips/filter/stream/'+stream, editurl=editurl, linkurl=vase_url+url)
+    return render_template('clippage.html', name=name.replace('-', ' '), stream=stream.replace('-', ' '), url=url, streamurl = '/clips/filter/stream/'+stream, editurl=editurl, linkurl=vase_url+url, clipped=format_datetime_readable(time))
 
 @app.route('/clips/audio/<uid>')
 def getclipaudio(uid):
@@ -264,7 +269,7 @@ def clipstreamfilter(stream):
     clips = dbmanager.filterstream(stream)
     formatedclips = []
     for i in clips:
-        clip = {'url': '/clips/'+str(i[0]), 'audiourl': '/clips/audio/'+str(i[0]), 'clipname': i[1].replace('-', ' '), 'streamname': i[2].replace('-', ' '), 'streamurl': '/clips/filter/stream/'+i[2]}
+        clip = {'url': '/clips/'+str(i[0]), 'audiourl': '/clips/audio/'+str(i[0]), 'clipname': i[1].replace('-', ' '), 'streamname': i[2].replace('-', ' '), 'streamurl': '/clips/filter/stream/'+i[2], 'datetime': format_datetime_readable(i[3]) }
         if isadmin(session):
             clip['editurl'] = '/clips/edit/'+str(i[0])
         formatedclips.append(clip)
@@ -277,7 +282,7 @@ def clipsearch(search):
     clips=dbmanager.searchclip(search)
     formatedclips = []
     for i in clips:
-        clip = {'url': '/clips/'+str(i[0]), 'audiourl': '/clips/audio/'+str(i[0]), 'clipname': i[1].replace('-', ' '), 'streamname': i[2].replace('-', ' '), 'streamurl': '/clips/filter/stream/'+i[2]}
+        clip = {'url': '/clips/'+str(i[0]), 'audiourl': '/clips/audio/'+str(i[0]), 'clipname': i[1].replace('-', ' '), 'streamname': i[2].replace('-', ' '), 'streamurl': '/clips/filter/stream/'+i[2], 'datetime': format_datetime_readable(i[3])}
         if isadmin(session):
             clip['editurl'] = '/clips/edit/'+str(i[0])
         formatedclips.append(clip)
@@ -288,7 +293,7 @@ def clipall():
     clips=dbmanager.allclip()
     formatedclips = []
     for i in clips:
-        clip = {'url': '/clips/'+str(i[0]), 'audiourl': '/clips/audio/'+str(i[0]), 'clipname': i[1].replace('-', ' '), 'streamname': i[2].replace('-', ' '), 'streamurl': '/clips/filter/stream/'+i[2]}
+        clip = {'url': '/clips/'+str(i[0]), 'audiourl': '/clips/audio/'+str(i[0]), 'clipname': i[1].replace('-', ' '), 'streamname': i[2].replace('-', ' '), 'streamurl': '/clips/filter/stream/'+i[2], 'datetime': format_datetime_readable(i[3])}
         if isadmin(session):
             clip['editurl'] = '/clips/edit/'+str(i[0])
         formatedclips.append(clip)
