@@ -1,6 +1,7 @@
 {% extends "base.html" %} {% block content %}
 <h1>{{name}}</h1>
 <a href="{{streamurl}}"><h2>{{stream}}</h2> </a>
+<h3>{{ clipped }}</h3>
 <div id="waveform" />
 <a href="{{url}}" id="download" download>
 	<button>Download</button>

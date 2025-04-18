@@ -9,6 +9,7 @@
 <div class="cliprow">
 	<a href="{{clip['url']}}"><h3>{{clip['clipname']}}</h3> </a>
 	<a href="{{clip['streamurl']}}"><h4>{{clip['streamname']}}</h4> </a>
+	<h4>{{ clip['datetime'] }}</h4>
 	<audio controls>
 		<source src="{{clip['audiourl']}}" type="audio/mp3" />
 	</audio>
