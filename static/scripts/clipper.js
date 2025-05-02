@@ -3,6 +3,50 @@ import WaveSurfer from "https://cdn.jsdelivr.net/npm/wavesurfer.js@7/dist/wavesu
 let streamid = 0;
 let audioid = "";
 
+const items = [
+	{ name: "YR-OB0", url: "audio.ury.org.uk/YR-OB0" },
+	{ name: "YR-OB1", url: "audio.ury.org.uk/YR-OB1" },
+	{ name: "YR-OB2", url: "audio.ury.org.uk/YR-OB2" },
+	{ name: "YR-OB3", url: "audio.ury.org.uk/YR-OB3" },
+	{ name: "YR-OB4", url: "audio.ury.org.uk/YR-OB4" },
+	{ name: "YR-OB5", url: "audio.ury.org.uk/YR-OB5" },
+	{ name: "LR-OB0", url: "audio.ury.org.uk/LR-OB0" },
+	{ name: "LR-OB1", url: "audio.ury.org.uk/LR-OB1" },
+	{ name: "LR-OB2", url: "audio.ury.org.uk/LR-OB2" },
+	{ name: "LR-OB3", url: "audio.ury.org.uk/LR-OB3" },
+	{ name: "LR-OB4", url: "audio.ury.org.uk/LR-OB4" },
+	{ name: "MR-OB1", url: "audio.ury.org.uk/MR-OB1" },
+	{ name: "AR-OB0", url: "audio.ury.org.uk/AR-OB0" },
+];
+
+function populateDropdown(dataList) {
+	const select = document.getElementById("nameSelect");
+	const input = document.getElementById("streamurl");
+
+	// Clear existing options
+	select.innerHTML = "";
+
+	// Create and append options
+	dataList.forEach((item) => {
+		const option = document.createElement("option");
+		option.value = item.url;
+		option.textContent = item.name;
+		select.appendChild(option);
+	});
+
+	// Set initial input value if there are items
+	if (dataList.length > 0) {
+		input.value = dataList[0].url;
+	}
+
+	// Event listener for selection change
+	select.addEventListener("change", function () {
+		input.value = this.value;
+	});
+}
+
+populateDropdown(items);
+
 function timeToString(time) {
 	let minutes = Math.floor(time / 60);
 	let seconds = Math.floor(time % 60);
